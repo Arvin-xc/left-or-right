@@ -47,10 +47,10 @@ export default function Home() {
 
   const imageSrc =
     gameState.status === "win"
-      ? "/right.png"
+      ? "/right.webp"
       : gameState.status === "lose"
-      ? "/wrong.png"
-      : "/normal.png";
+      ? "/wrong.webp"
+      : "/normal.webp";
 
   const handleChoice = (choice: Side) => {
     const isSuccess = Math.random() < 0.5;

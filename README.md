@@ -1,4 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Left or Right? - Robot Doctor Surgery Game
+
+An addictive web-based game where you play as a robot doctor performing appendectomies. Test your surgical skills by choosing the correct side - left or right!
+
+## Game Features
+
+- **Simple Gameplay**: Choose between left or right for each surgical procedure
+- **Real-time Feedback**: Immediate visual feedback on your choices
+- **Statistics Tracking**: Track your rounds played, successful incisions, and success rate
+- **Responsive Design**: Play on any device - desktop, tablet, or mobile
+- **PWA Support**: Install as an app on your device for offline play
+
+## SEO & Performance Optimized
+
+This game includes comprehensive SEO optimization:
+- Meta tags for search engines
+- Open Graph and Twitter Card support for social sharing
+- Structured data (JSON-LD) for rich search results
+- Progressive Web App (PWA) features
+- Optimized loading and caching
+
+## Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org) with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Fonts**: Geist Sans & Geist Mono
+- **Deployment**: Optimized for Vercel
 
 ## Getting Started
 

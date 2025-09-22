@@ -2,6 +2,8 @@
   "name": "left-or-right",
   "version": "0.1.0",
   "private": true,
+  "description": "Left or Right? - An addictive web-based surgery game where you play as a robot doctor performing appendectomies",
+  "keywords": ["game", "surgery", "medical", "robot", "doctor", "appendectomy", "left-right", "decision-making", "casual-game"],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
