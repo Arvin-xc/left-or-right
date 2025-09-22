@@ -1,103 +1,137 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
+
+type Side = "left" | "right";
+type Status = "idle" | "win" | "lose";
+
+type GameState = {
+  status: Status;
+  lastChoice: Side | null;
+};
+
+type Stats = {
+  wins: number;
+  plays: number;
+};
+
+const defaultState: GameState = {
+  status: "idle",
+  lastChoice: null,
+};
+
+const STORAGE_KEY = "appendectomy-stats";
 
 export default function Home() {
+  const [gameState, setGameState] = useState<GameState>(defaultState);
+  const [stats, setStats] = useState<Stats>({ wins: 0, plays: 0 });
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (!stored) return;
+      const parsed = JSON.parse(stored) as Partial<Stats> | null;
+      if (!parsed) return;
+      const wins =
+        typeof parsed.wins === "number" && parsed.wins >= 0 ? parsed.wins : 0;
+      const plays =
+        typeof parsed.plays === "number" && parsed.plays >= 0
+          ? parsed.plays
+          : 0;
+      setStats({ wins, plays });
+    } catch (error) {
+      console.warn("Failed to read stats from localStorage", error);
+    }
+  }, []);
+
+  const imageSrc =
+    gameState.status === "win"
+      ? "/right.png"
+      : gameState.status === "lose"
+      ? "/wrong.png"
+      : "/normal.png";
+
+  const handleChoice = (choice: Side) => {
+    const isSuccess = Math.random() < 0.5;
+    setGameState({
+      status: isSuccess ? "win" : "lose",
+      lastChoice: choice,
+    });
+
+    setStats((prev) => {
+      const updated = {
+        wins: prev.wins + (isSuccess ? 1 : 0),
+        plays: prev.plays + 1,
+      };
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      } catch (error) {
+        console.warn("Failed to save stats to localStorage", error);
+      }
+      return updated;
+    });
+  };
+
+  const resetGame = () => {
+    setGameState({ ...defaultState });
+  };
+
+  const successRate =
+    stats.plays === 0 ? 0 : Math.round((stats.wins / stats.plays) * 100);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center px-6 py-10">
+      <h1 className="text-3xl font-semibold text-center">Left or Right?</h1>
+      <p className="mt-3 text-sm text-slate-200 text-center max-w-md">
+        You are a robot doctor performing an appendectomy. Choose left or right
+        and see if you guessed correctly.
+      </p>
+
+      <div className="relative mt-8 w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl shadow-slate-900/60">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          src={imageSrc}
+          alt="operating room scene"
+          width={640}
+          height={640}
+          className="w-full h-auto"
           priority
         />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="mt-8 flex gap-4 flex-wrap justify-center">
+        <button
+          type="button"
+          onClick={() => handleChoice("left")}
+          className="rounded-full bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 px-6 py-3 font-semibold transition-colors disabled:bg-slate-600 disabled:cursor-not-allowed"
+          disabled={gameState.status !== "idle"}
+        >
+          Cut Left
+        </button>
+        <button
+          type="button"
+          onClick={() => handleChoice("right")}
+          className="rounded-full bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 px-6 py-3 font-semibold transition-colors disabled:bg-slate-600 disabled:cursor-not-allowed"
+          disabled={gameState.status !== "idle"}
+        >
+          Cut Right
+        </button>
+        {gameState.status !== "idle" && (
+          <button
+            type="button"
+            onClick={resetGame}
+            className="rounded-full border border-white/30 px-6 py-3 font-semibold text-sm text-slate-100 hover:bg-white/10"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            Try Again
+          </button>
+        )}
+      </div>
+
+      <div className="mt-8 text-center text-sm text-slate-300 font-bold space-y-1 flex justify-center gap-2">
+        <p>Rounds played: {stats.plays}</p>
+        <p>Correct incisions: {stats.wins}</p>
+        <p>Success rate: {successRate}%</p>
+      </div>
     </div>
   );
 }
